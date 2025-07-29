@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, setIcon, Setting } from 'obsidian';
 import Chart from 'chart.js/auto';
 
 // Remember to rename these classes and interfaces!
@@ -36,6 +36,7 @@ export default class MyPlugin extends Plugin {
 					   new WordChartModal(this.app, this.dailyWordHistory).open();
 			   });
 			   ribbonIconEl.addClass('my-plugin-ribbon-class');
+			   setIcon(ribbonIconEl, 'chart-bar');
 
 			   // 状态栏字数显示
 			   this.statusBarItemEl = this.addStatusBarItem();
