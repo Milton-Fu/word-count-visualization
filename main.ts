@@ -1,7 +1,8 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, setIcon, Setting } from 'obsidian';
+import { App, Editor, ItemView, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, setIcon, Setting, WorkspaceLeaf } from 'obsidian';
 import Chart from 'chart.js/auto';
 
 // Remember to rename these classes and interfaces!
+const VIEW_TYPE_WORD_COUNT = 'word-count-view';
 
 interface MyPluginSettings {
 	mySetting: string;
@@ -63,57 +64,85 @@ export default class MyPlugin extends Plugin {
 		// ...已将折线图弹窗绑定到图标点击事件...
 
 		// ...existing code...
+
+		this.registerView(
+			VIEW_TYPE_WORD_COUNT,
+			(leaf) => new WordCountView(leaf)
+		);
+
+		this.addCommand({
+			id: 'open-my-word-count-view',
+			name: '打开我的字数统计视图',
+			callback: () => {
+				this.activateView();
+			}
+		});
 	}
 
-	   onunload() {
-			// 这里的事件会自动被 registerEvent 清理，无需手动移除
-	    }
+	onunload() {
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_WORD_COUNT);
+		// 这里的事件会自动被 registerEvent 清理，无需手动移除
+	}
 
-	   updateWordCount() {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			let currentCount = 0;
-			if (view && view.editor) {
-					const text = view.editor.getValue();
-					currentCount = this.countWords(text);
-			}
-			this.statusBarItemEl.setText(`字数：${currentCount} | 总字数：${this.vaultWordCount}`);
-	    }
+	updateWordCount() {
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		let currentCount = 0;
+		if (view && view.editor) {
+				const text = view.editor.getValue();
+				currentCount = this.countWords(text);
+		}
+		this.statusBarItemEl.setText(`字数：${currentCount} | 总字数：${this.vaultWordCount}`);
+	}
 
-	   async updateVaultWordCount() {
-			// 统计整个 Vault 的所有 md 文件字数
-			let total = 0;
-			const files = this.app.vault.getMarkdownFiles();
-			for (const file of files) {
-					const content = await this.app.vault.read(file);
-					total += this.countWords(content);
-			}
-			this.vaultWordCount = total;
-			this.updateWordCount();
-	    }
+	async updateVaultWordCount() {
+		// 统计整个 Vault 的所有 md 文件字数
+		let total = 0;
+		const files = this.app.vault.getMarkdownFiles();
+		for (const file of files) {
+				const content = await this.app.vault.read(file);
+				total += this.countWords(content);
+		}
+		this.vaultWordCount = total;
+		this.updateWordCount();
+	}
 
-	   async recordDailyWordCount() {
-			// 通过所有 md 文件的 mtime 统计每日总字数
-			const files = this.app.vault.getMarkdownFiles();
-			const dayWordMap: Record<string, number> = {};
-			for (const file of files) {
-					if (!file.stat) continue;
-					const mtime = new Date(file.stat.mtime);
-					const day = `${mtime.getFullYear()}-${(mtime.getMonth()+1).toString().padStart(2,'0')}-${mtime.getDate().toString().padStart(2,'0')}`;
-					const content = await this.app.vault.read(file);
-					const count = this.countWords(content);
-					if (!dayWordMap[day]) dayWordMap[day] = 0;
-					dayWordMap[day] += count;
-			}
-			this.dailyWordHistory = dayWordMap;
-			await this.saveSettings();
-	   }
+	async recordDailyWordCount() {
+		// 通过所有 md 文件的 mtime 统计每日总字数
+		const files = this.app.vault.getMarkdownFiles();
+		const dayWordMap: Record<string, number> = {};
+		for (const file of files) {
+				if (!file.stat) continue;
+				const mtime = new Date(file.stat.mtime);
+				const day = `${mtime.getFullYear()}-${(mtime.getMonth()+1).toString().padStart(2,'0')}-${mtime.getDate().toString().padStart(2,'0')}`;
+				const content = await this.app.vault.read(file);
+				const count = this.countWords(content);
+				if (!dayWordMap[day]) dayWordMap[day] = 0;
+				dayWordMap[day] += count;
+		}
+		this.dailyWordHistory = dayWordMap;
+		await this.saveSettings();
+	}
 
 
-	   countWords(text: string): number {
-			// 匹配中文、英文单词、数字
-			const matches = text.match(/([\u4e00-\u9fa5])|([a-zA-Z0-9_]+)/g);
-			return matches ? matches.length : 0;
-	   }
+	countWords(text: string): number {
+		// 匹配中文、英文单词、数字
+		const matches = text.match(/([\u4e00-\u9fa5])|([a-zA-Z0-9_]+)/g);
+		return matches ? matches.length : 0;
+	}
+
+	async activateView() {
+    const leaf = this.app.workspace.getLeaf(true);
+    if (!leaf) {
+        // 可以根据实际情况选择抛出错误或直接返回
+        console.warn('未找到右侧叶节点');
+        return;
+    }
+    await leaf.setViewState({
+      type: VIEW_TYPE_WORD_COUNT,
+      active: true,
+    });
+    this.app.workspace.revealLeaf(leaf);
+  }
 }
 
 
@@ -170,3 +199,31 @@ class WordChartModal extends Modal {
 }
 // ...existing code...
 
+class WordCountView extends ItemView {
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+	}
+
+	getViewType() {
+		return 'word-count-view';
+	}
+
+	getDisplayText() {
+		return 'Word Count';
+	}
+
+	getIcon() {
+		return 'dice';
+	}
+
+	async onOpen() {
+		const container = this.containerEl.children[1];
+		container.empty();
+		container.createEl('h2', { text: 'Word Count View' });
+		container.createEl('p', { text: 'This is a custom view for displaying word count.' });
+	}
+
+	async onClose() {
+		// 清理工作
+	}
+}
