@@ -5,5 +5,5 @@ export interface MyPluginSettings {
 
 export const DEFAULT_SETTINGS: MyPluginSettings = {
     chartMode: 'default',
-    isCumulative: false
+    isCumulative: true
 };
