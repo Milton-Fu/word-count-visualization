@@ -1,5 +1,5 @@
 import { Plugin, setIcon, MarkdownView, WorkspaceLeaf } from 'obsidian';
-import { MyPluginSettings, DEFAULT_SETTINGS } from './components/settings';
+import { MyPluginSettings, DEFAULT_SETTINGS } from './components/settingss';
 import { countWords, getDailyWordHistory } from './components/utils';
 import { WordCountView, VIEW_TYPE_WORD_COUNT } from './components/views';
 
