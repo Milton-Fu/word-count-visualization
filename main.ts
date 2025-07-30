@@ -1,7 +1,7 @@
 import { Plugin, setIcon, MarkdownView, WorkspaceLeaf } from 'obsidian';
-import { MyPluginSettings, DEFAULT_SETTINGS } from './components/Settings';
-import { countWords, getDailyWordHistory } from './components/WordUtils';
-import { WordCountView, VIEW_TYPE_WORD_COUNT } from './components/VisulizationView';
+import { MyPluginSettings, DEFAULT_SETTINGS } from './components/settings';
+import { countWords, getDailyWordHistory } from './components/utils';
+import { WordCountView, VIEW_TYPE_WORD_COUNT } from './components/views';
 
 export default class MyPlugin extends Plugin {
     settings: MyPluginSettings;

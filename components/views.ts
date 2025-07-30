@@ -93,7 +93,7 @@ export class WordCountView extends ItemView {
                 data: {
                     labels,
                     datasets: [{
-                        label: isCumulative ? '累加字数' : '总字数',
+                        // label: isCumulative ? '累加字数' : '总字数',
                         data,
                         borderColor: 'rgba(54, 162, 235, 1)',
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
