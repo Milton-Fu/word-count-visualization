@@ -1,7 +1,9 @@
 export interface MyPluginSettings {
-    mySetting: string;
+    chartMode: string; // 区间模式
+    isCumulative: boolean; // 是否为累加模式
 }
 
 export const DEFAULT_SETTINGS: MyPluginSettings = {
-    mySetting: 'default'
+    chartMode: 'default',
+    isCumulative: false
 };
