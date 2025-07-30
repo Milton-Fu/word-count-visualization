@@ -34,9 +34,8 @@ export default class MyPlugin extends Plugin {
 
 		// 创建左侧栏图标
 		const ribbonIconEl = this.addRibbonIcon('dice', '字数统计', (evt: MouseEvent) => {
-				new WordChartModal(this.app, this.dailyWordHistory).open();
+				this.activateView();
 		});
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
 		setIcon(ribbonIconEl, 'chart-bar');
 
 		// 状态栏字数显示
@@ -67,7 +66,7 @@ export default class MyPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_WORD_COUNT,
-			(leaf) => new WordCountView(leaf)
+			(leaf) => new WordCountView(leaf, this.dailyWordHistory)
 		);
 
 		this.addCommand({
@@ -131,77 +130,26 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async activateView() {
-    const leaf = this.app.workspace.getLeaf(true);
-    if (!leaf) {
-        // 可以根据实际情况选择抛出错误或直接返回
-        console.warn('未找到右侧叶节点');
-        return;
-    }
-    await leaf.setViewState({
-      type: VIEW_TYPE_WORD_COUNT,
-      active: true,
-    });
-    this.app.workspace.revealLeaf(leaf);
+		const leaf = this.app.workspace.getLeaf(true);
+		if (!leaf) {
+			// 可以根据实际情况选择抛出错误或直接返回
+			console.warn('未找到右侧叶节点');
+			return;
+		}
+		await leaf.setViewState({
+			type: VIEW_TYPE_WORD_COUNT,
+			active: true,
+		});
+		this.app.workspace.revealLeaf(leaf);
   }
 }
 
 
-// 折线图 Modal 预留
-class WordChartModal extends Modal {
-		history: Record<string, number>;
-		constructor(app: App, history: Record<string, number>) {
-			super(app);
-			this.history = history;
-		}
-	   onOpen() {
-			const {contentEl} = this;
-			contentEl.empty();
-			// contentEl.createEl('h2', {text: '每日字数变化'});
-			const canvas = contentEl.createEl('canvas');
-			// 数据处理
-			const labels = Object.keys(this.history).sort();
-			const data = labels.map(date => this.history[date]);
-			// Chart.js 配置
-			setTimeout(() => {
-					new Chart(canvas, {
-							type: 'line',
-							data: {
-								labels,
-								datasets: [{
-										label: '总字数',
-										data,
-										borderColor: 'rgba(54, 162, 235, 1)',
-										backgroundColor: 'rgba(54, 162, 235, 0.2)',
-										fill: true,
-										tension: 0.5,
-										pointRadius: 0
-								}]
-							},
-							options: {
-								responsive: true,
-								plugins: {
-									legend: { display: true,
-										position: 'center'
-									},
-									title: { 
-										display: true,
-										text: '每日字数统计'
-									}
-								},
-								scales: {
-										x: { title: { display: true, text: '日期' } },
-										y: { title: { display: true, text: '字数' }, beginAtZero: true }
-								}
-							}
-					});
-			}, 0);
-	   }
-}
-// ...existing code...
-
 class WordCountView extends ItemView {
-	constructor(leaf: WorkspaceLeaf) {
+	history: Record<string, number>;
+	constructor(leaf: WorkspaceLeaf, history: Record<string, number>) {
 		super(leaf);
+		this.history = history;
 	}
 
 	getViewType() {
@@ -219,8 +167,44 @@ class WordCountView extends ItemView {
 	async onOpen() {
 		const container = this.containerEl.children[1];
 		container.empty();
-		container.createEl('h2', { text: 'Word Count View' });
-		container.createEl('p', { text: 'This is a custom view for displaying word count.' });
+		const canvas = container.createEl('canvas');
+		// 数据处理
+		const labels = Object.keys(this.history).sort();
+		const data = labels.map(date => this.history[date]);
+		// Chart.js 配置
+		setTimeout(() => {
+				new Chart(canvas, {
+						type: 'line',
+						data: {
+							labels,
+							datasets: [{
+									label: '总字数',
+									data,
+									borderColor: 'rgba(54, 162, 235, 1)',
+									backgroundColor: 'rgba(54, 162, 235, 0.2)',
+									fill: true,
+									tension: 0.5,
+									pointRadius: 0
+							}]
+						},
+						options: {
+							responsive: true,
+							plugins: {
+								legend: { display: true,
+									position: 'center'
+								},
+								title: { 
+									display: true,
+									text: '每日字数统计'
+								}
+							},
+							scales: {
+									x: { title: { display: true, text: '日期' } },
+									y: { title: { display: true, text: '字数' }, beginAtZero: true }
+							}
+						}
+				});
+		}, 0);
 	}
 
 	async onClose() {
