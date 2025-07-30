@@ -94,28 +94,20 @@ export class WordCountView extends ItemView {
             const endDate = new Date(allDays[allDays.length - 1]);
 
             if (this.plugin.settings.chartMode === 'month') {
-                // 按自然月切分，基于 segmentCount
-                const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth() + 1);
-                const monthsPerSegment = Math.ceil(totalMonths / segmentCount);
-
+                // 按自然月切分
                 const currentDate = new Date(startDate);
                 currentDate.setDate(1); // 从每月1号开始
-                for (let i = 0; i < segmentCount; i++) {
+                while (currentDate <= endDate) {
                     labels.push(`${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`);
-                    currentDate.setMonth(currentDate.getMonth() + monthsPerSegment); // 跳到下一个分段
-                    if (currentDate > endDate) break;
+                    currentDate.setMonth(currentDate.getMonth() + 1); // 跳到下一个月
                 }
             } else if (this.plugin.settings.chartMode === 'year') {
                 // 按自然年切分
-                const totalYears = endDate.getFullYear() - startDate.getFullYear() + 1;
-                const yearsPerSegment = Math.ceil(totalYears / segmentCount);
-
                 const currentDate = new Date(startDate);
                 currentDate.setMonth(0, 1); // 从每年1月1日开始
-                for (let i = 0; i < segmentCount; i++) {
+                while (currentDate <= endDate) {
                     labels.push(`${currentDate.getFullYear()}`);
-                    currentDate.setFullYear(currentDate.getFullYear() + yearsPerSegment); // 跳到下一个分段
-                    if (currentDate > endDate) break;
+                    currentDate.setFullYear(currentDate.getFullYear() + 1); // 跳到下一年
                 }
             } else {
                 // 默认分段（基于自然时间）
@@ -168,14 +160,23 @@ export class WordCountView extends ItemView {
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         fill: true,
                         tension: 0.2, // 贝塞尔曲线
-                        pointRadius: 2
+                        pointRadius: 0, // 不显示点
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false, // 允许图表高度自适应
                     plugins: {
-                        legend: { display: true, position: 'top' },
+                        legend: { display: false },
                         title: { display: true, text: this.plugin.settings.isCumulative ? '笔记库累加字数统计' : '笔记库字数统计' }
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 60,
+                            left: 10,
+                            right: 10
+                        }
                     },
                     scales: {
                         x: { 
