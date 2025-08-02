@@ -1,4 +1,4 @@
-import { Plugin, setIcon, MarkdownView, WorkspaceLeaf } from 'obsidian';
+import { Plugin, PluginSettingTab, MarkdownView, App, Setting } from 'obsidian';
 import { MyPluginSettings, DEFAULT_SETTINGS } from './components/settings';
 import { countWords, getDailyWordHistory } from './components/utils';
 import { WordCountView, VIEW_TYPE_WORD_COUNT } from './components/views';
@@ -50,6 +50,9 @@ export default class MyPlugin extends Plugin {
             VIEW_TYPE_WORD_COUNT,
             leaf => new WordCountView(leaf, this)
         );
+
+        // 添加设置页面
+        this.addSettingTab(new WordCountSettingTab(this.app, this));
     }
 
     onunload() {
@@ -77,5 +80,34 @@ export default class MyPlugin extends Plugin {
             active: true,
         });
         this.app.workspace.revealLeaf(leaf);
+    }
+}
+
+class WordCountSettingTab extends PluginSettingTab {
+    plugin: MyPlugin;
+
+    constructor(app: App, plugin: MyPlugin) {
+        super(app, plugin);
+        this.plugin = plugin;
+    }
+
+    display(): void {
+        const { containerEl } = this;
+
+        containerEl.empty();
+        containerEl.createEl('h2', { text: '字数统计设置' });
+
+        // 折线图颜色设置
+        new Setting(containerEl)
+            .setName('折线图颜色')
+            .setDesc('设置折线图的颜色')
+            .addText(text => 
+                text
+                    .setPlaceholder('输入颜色 (如: rgba(54, 162, 235, 1))')
+                    .setValue(this.plugin.settings.lineColor)
+                    .onChange(async (value) => {
+                        this.plugin.settings.lineColor = value;
+                        await this.plugin.saveSettings();
+                    }));
     }
 }

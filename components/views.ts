@@ -156,16 +156,16 @@ export class WordCountView extends ItemView {
                     datasets: [{
                         label: this.plugin.settings.isCumulative ? '累加字数' : '总字数',
                         data,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: this.plugin.settings.lineColor, // 使用用户设置的颜色
+                        backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.2)'), // 半透明背景色
                         fill: true,
                         tension: 0.2, // 贝塞尔曲线
-                        pointRadius: 0, // 不显示点
+                        pointRadius: 0 // 不显示点
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // 允许图表高度自适应
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
                         title: { display: true, text: this.plugin.settings.isCumulative ? '笔记库累加字数统计' : '笔记库字数统计' }
@@ -181,7 +181,7 @@ export class WordCountView extends ItemView {
                     scales: {
                         x: { 
                             title: { display: true, text: '区间' },
-                            ticks: { maxTicksLimit: maxXTicks } // 限制 x 轴刻度
+                            ticks: { maxTicksLimit: maxXTicks }
                         },
                         y: { title: { display: true, text: '字数' }, beginAtZero: true }
                     }
