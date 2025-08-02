@@ -1,0 +1,30 @@
+export const translations = {
+    'zh-cn': {
+        totalWordCount: '笔记库总字数',
+        chartMode: '区间',
+        defaultSegment: '默认分段',
+        byMonth: '按月',
+        byYear: '按年',
+        cumulativeMode: '累加模式',
+        normalMode: '普通模式',
+        refresh: '刷新',
+        cumulativeWordCount: '笔记库累加字数统计',
+        totalWordCountChart: '笔记库字数统计',
+    },
+    'en': {
+        totalWordCount: 'Total Word Count',
+        chartMode: 'Interval',
+        defaultSegment: 'Default Segmentation',
+        byMonth: 'By Month',
+        byYear: 'By Year',
+        cumulativeMode: 'Cumulative Mode',
+        normalMode: 'Normal Mode',
+        refresh: 'Refresh',
+        cumulativeWordCount: 'Cumulative Word Count',
+        totalWordCountChart: 'Total Word Count Chart',
+    }
+};
+
+export function t(key: string, language: string): string {
+    return translations[language]?.[key] || key;
+}

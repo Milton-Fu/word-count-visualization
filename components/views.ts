@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf, setIcon } from 'obsidian';
 import Chart from 'chart.js/auto';
 import type MyPlugin from '../main';
+import { t } from './i18n';
 
 export const VIEW_TYPE_WORD_COUNT = 'word-count-view';
 
@@ -25,6 +26,8 @@ export class WordCountView extends ItemView {
     }
 
     async onOpen() {
+        const language = this.plugin.settings.language;
+
         const container = this.containerEl.children[1];
         container.empty();
 
@@ -38,9 +41,10 @@ export class WordCountView extends ItemView {
         // 总字数显示
         const totalWordCountEl = topContainer.createEl('div', { cls: 'total-word-count' });
         totalWordCountEl.style.fontSize = '14px';
+        totalWordCountEl.style.fontWeight = 'bold'; // 设置字体加粗
         const updateTotalWordCount = () => {
             const totalWords = Object.values(this.plugin.dailyWordHistory).reduce((sum, count) => sum + count, 0);
-            totalWordCountEl.textContent = `笔记库总字数：${totalWords.toLocaleString()}`;
+            totalWordCountEl.textContent = `${t('totalWordCount', language)}：${totalWords.toLocaleString()} ${language === 'zh-cn' ? '字' : 'words'}`;
         };
         updateTotalWordCount();
 
@@ -53,9 +57,9 @@ export class WordCountView extends ItemView {
         // 区间选择器
         const select = buttonContainer.createEl('select', { cls: 'chart-mode-select' });
         select.innerHTML = `
-            <option value="default">默认分段</option>
-            <option value="month">按月</option>
-            <option value="year">按年</option>
+            <option value="default">${t('defaultSegment', language)}</option>
+            <option value="month">${t('byMonth', language)}</option>
+            <option value="year">${t('byYear', language)}</option>
         `;
         select.value = this.plugin.settings.chartMode || 'default';
         setIcon(select.createEl('span', { cls: 'select-icon' }), 'calendar');
@@ -63,15 +67,15 @@ export class WordCountView extends ItemView {
         // 累加模式选择器
         const cumulativeSelect = buttonContainer.createEl('select', { cls: 'cumulative-mode-select' });
         cumulativeSelect.innerHTML = `
-            <option value="false">普通模式</option>
-            <option value="true">累加模式</option>
+            <option value="false">${t('normalMode', language)}</option>
+            <option value="true">${t('cumulativeMode', language)}</option>
         `;
         cumulativeSelect.value = this.plugin.settings.isCumulative ? 'true' : 'false';
         setIcon(cumulativeSelect.createEl('span', { cls: 'select-icon' }), 'layers');
 
         // 刷新按钮（图标）
         const refreshBtn = buttonContainer.createEl('button', { cls: 'refresh-button' });
-        setIcon(refreshBtn, 'refresh-cw');
+        setIcon(refreshBtn, 'refresh-cw'); // 使用 Obsidian 的图标
         refreshBtn.style.padding = '5px';
         refreshBtn.style.border = 'none';
         refreshBtn.style.background = 'none';
@@ -149,12 +153,13 @@ export class WordCountView extends ItemView {
                 (window as any).wordChart.destroy();
             }
 
+            // 渲染图表
             (window as any).wordChart = new Chart(canvas, {
                 type: 'line',
                 data: {
                     labels,
                     datasets: [{
-                        label: this.plugin.settings.isCumulative ? '累加字数' : '总字数',
+                        label: this.plugin.settings.isCumulative ? t('cumulativeWordCount', language) : t('totalWordCountChart', language),
                         data,
                         borderColor: this.plugin.settings.lineColor, // 使用用户设置的颜色
                         backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.2)'), // 半透明背景色
@@ -168,7 +173,12 @@ export class WordCountView extends ItemView {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        title: { display: true, text: this.plugin.settings.isCumulative ? '笔记库累加字数统计' : '笔记库字数统计' }
+                        title: { 
+                            display: true, 
+                            text: this.plugin.settings.isCumulative 
+                                ? t('cumulativeWordCount', language) 
+                                : t('totalWordCountChart', language) 
+                        }
                     },
                     layout: {
                         padding: {
@@ -180,10 +190,19 @@ export class WordCountView extends ItemView {
                     },
                     scales: {
                         x: { 
-                            title: { display: true, text: '区间' },
+                            title: { 
+                                display: true, 
+                                text: t('chartMode', language) // x 轴标题
+                            },
                             ticks: { maxTicksLimit: maxXTicks }
                         },
-                        y: { title: { display: true, text: '字数' }, beginAtZero: true }
+                        y: { 
+                            title: { 
+                                display: true, 
+                                text: t('totalWordCount', language) // y 轴标题
+                            }, 
+                            beginAtZero: true 
+                        }
                     }
                 }
             });
