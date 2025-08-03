@@ -20,7 +20,8 @@ export class WordCountView extends ItemView {
     }
 
     getDisplayText() {
-        return '笔记可视化';
+        const language = this.plugin.settings.language as Language;
+        return t('wordCountVisualization', language); // 使用多语言支持的标题
     }
 
     getIcon() {
@@ -94,18 +95,27 @@ export class WordCountView extends ItemView {
 
             // 定义切分段数和 x 轴刻度限制
             const segmentCount = 7; // 切分段数
-            const maxXTicks = 7; // x 轴刻度限制
+            const maxXTicks = 8; // x 轴刻度限制
 
             const startDate = new Date(allDays[0]);
             const endDate = new Date(allDays[allDays.length - 1]);
 
             if (this.plugin.settings.chartMode === 'month') {
-                // 按自然月切分
+                // 按自然月切分为七段
+                const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth() + 1);
+                const monthsPerSegment = Math.ceil(totalMonths / segmentCount);
+
                 const currentDate = new Date(startDate);
                 currentDate.setDate(1); // 从每月1号开始
-                while (currentDate <= endDate) {
+                for (let i = 0; i < segmentCount - 1; i++) {
                     labels.push(`${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`);
-                    currentDate.setMonth(currentDate.getMonth() + 1); // 跳到下一个月
+                    currentDate.setMonth(currentDate.getMonth() + monthsPerSegment); // 跳到下一个分段的起始月份
+                }
+
+                // 确保最后一个段覆盖到 endDate
+                const lastMonth = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}`;
+                if (!labels.includes(lastMonth)) {
+                    labels.push(lastMonth);
                 }
             } else if (this.plugin.settings.chartMode === 'year') {
                 // 按自然年切分
@@ -121,11 +131,12 @@ export class WordCountView extends ItemView {
                 const segmentLength = Math.ceil(totalDays / segmentCount);
 
                 const currentDate = new Date(startDate);
-                for (let i = 0; i <= segmentCount; i++) {
+                for (let i = 0; i < segmentCount; i++) {
                     labels.push(currentDate.toISOString().split('T')[0]);
                     currentDate.setDate(currentDate.getDate() + segmentLength);
-                    if (currentDate > endDate) break;
                 }
+
+                labels.push(endDate.toISOString().split('T')[0]);
             }
 
             // 计算每个区间的字数
@@ -163,8 +174,8 @@ export class WordCountView extends ItemView {
                     datasets: [{
                         label: this.plugin.settings.isCumulative ? t('cumulativeWordCount', language) : t('totalWordCountChart', language),
                         data,
-                        borderColor: this.plugin.settings.lineColor, // 使用用户设置的颜色
-                        backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.2)'), // 半透明背景色
+                        borderColor: this.plugin.settings.lineColor,
+                        backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.2)'),
                         fill: true,
                         tension: 0.2, // 贝塞尔曲线
                         pointRadius: 0 // 不显示点
@@ -176,7 +187,7 @@ export class WordCountView extends ItemView {
                     plugins: {
                         legend: { display: false },
                         title: { 
-                            display: true, 
+                            display: false, 
                             text: this.plugin.settings.isCumulative 
                                 ? t('cumulativeWordCount', language) 
                                 : t('totalWordCountChart', language) 
