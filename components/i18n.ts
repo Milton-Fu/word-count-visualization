@@ -1,4 +1,21 @@
-export const translations = {
+export type Language = 'zh-cn' | 'en';
+type TranslationKey =
+    | 'totalWordCount'
+    | 'chartMode'
+    | 'defaultSegment'
+    | 'byMonth'
+    | 'byYear'
+    | 'cumulativeMode'
+    | 'normalMode'
+    | 'refresh'
+    | 'cumulativeWordCount'
+    | 'totalWordCountChart';
+
+type Translations = {
+    [lang in Language]: Record<TranslationKey, string>;
+};
+
+export const translations: Translations = {
     'zh-cn': {
         totalWordCount: '笔记库总字数',
         chartMode: '区间',
@@ -25,6 +42,6 @@ export const translations = {
     }
 };
 
-export function t(key: string, language: string): string {
+export function t(key: TranslationKey, language: Language): string {
     return translations[language]?.[key] || key;
 }

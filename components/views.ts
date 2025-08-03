@@ -2,6 +2,8 @@ import { ItemView, WorkspaceLeaf, setIcon } from 'obsidian';
 import Chart from 'chart.js/auto';
 import type MyPlugin from '../main';
 import { t } from './i18n';
+// Import Language type if it's exported from i18n or define it here
+import type { Language } from './i18n';
 
 export const VIEW_TYPE_WORD_COUNT = 'word-count-view';
 
@@ -26,7 +28,7 @@ export class WordCountView extends ItemView {
     }
 
     async onOpen() {
-        const language = this.plugin.settings.language;
+        const language = this.plugin.settings.language as Language;
 
         const container = this.containerEl.children[1];
         container.empty();
