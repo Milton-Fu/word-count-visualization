@@ -160,7 +160,9 @@ export class WordCountView extends ItemView {
                         label: this.plugin.settings.isCumulative ? t('cumulativeWordCount', language) : t('totalWordCountChart', language),
                         data,
                         borderColor: this.plugin.settings.lineColor,
-                        backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.2)'),
+                        borderWidth: chartType === 'line' ? 4 : 3,
+                        borderRadius: 5,
+                        backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.5)'),
                         fill: !this.plugin.settings.isCumulative, // 仅柱状图填充
                         tension: 0.2, // 贝塞尔曲线，仅折线图生效
                         pointRadius: this.plugin.settings.isCumulative ? 1 : 0 // 折线图显示点，柱状图不显示

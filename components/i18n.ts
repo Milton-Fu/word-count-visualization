@@ -18,7 +18,7 @@ type Translations = {
 
 export const translations: Translations = {
     'zh-cn': {
-        totalWordCount: '笔记库总字数',
+        totalWordCount: '字数',
         chartMode: '区间',
         defaultSegment: '默认分段',
         byMonth: '按月',
@@ -31,7 +31,7 @@ export const translations: Translations = {
         wordCountVisualization: '笔记库字数统计' // 新增翻译
     },
     'en': {
-        totalWordCount: 'Total Word Count',
+        totalWordCount: 'Word Count',
         chartMode: 'Interval',
         defaultSegment: 'Default Segmentation',
         byMonth: 'By Month',
