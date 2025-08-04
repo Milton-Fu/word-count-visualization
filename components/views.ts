@@ -97,7 +97,8 @@ export class WordCountView extends ItemView {
 
             let result;
             if (this.plugin.settings.chartMode === 'month') {
-                result = await calcMonthlyMode(2025, history);
+                const selectedYear = this.plugin.settings.selectedYear || startDate.getFullYear();
+                result = await calcMonthlyMode(selectedYear, history);
             } else if (this.plugin.settings.chartMode === 'year') {
                 result = await calcYearlyMode(startDate, endDate, history);
             } else {
@@ -196,6 +197,18 @@ export class WordCountView extends ItemView {
                 cumulativeSelect.disabled = false;
             }
 
+            // 动态控制年份选择器的显示和隐藏
+            const yearSelect = buttonContainer.querySelector('.year-select') as HTMLSelectElement;
+            if (select.value === 'month') {
+                if (yearSelect) {
+                    yearSelect.style.display = 'block';
+                }
+            } else {
+                if (yearSelect) {
+                    yearSelect.style.display = 'none';
+                }
+            }
+
             await this.plugin.saveSettings();
             await renderChart();
         };
@@ -210,6 +223,39 @@ export class WordCountView extends ItemView {
             updateTotalWordCount();
             await renderChart();
         };
+
+        if (this.plugin.settings.chartMode === 'month') {
+            // 动态生成年份选择器
+            const history = this.plugin.dailyWordHistory;
+            const allDays = Object.keys(history).sort();
+            const startYear = new Date(allDays[0]).getFullYear();
+            const endYear = new Date(allDays[allDays.length - 1]).getFullYear();
+
+            let yearSelect = buttonContainer.querySelector('.year-select') as HTMLSelectElement;
+            if (!yearSelect) {
+                yearSelect = buttonContainer.createEl('select', { cls: 'year-select' });
+                for (let year = startYear; year <= endYear; year++) {
+                    const option = yearSelect.createEl('option', { text: year.toString(), value: year.toString() });
+                    if (year === (this.plugin.settings.selectedYear || startYear)) {
+                        option.selected = true;
+                    }
+                }
+
+                yearSelect.onchange = async () => {
+                    this.plugin.settings.selectedYear = parseInt(yearSelect.value, 10);
+                    await this.plugin.saveSettings();
+                    await renderChart();
+                };
+            }
+
+            yearSelect.style.display = 'block'; // 显示年份选择器
+        } else {
+            // 隐藏年份选择器
+            const yearSelect = buttonContainer.querySelector('.year-select') as HTMLSelectElement;
+            if (yearSelect) {
+                yearSelect.style.display = 'none';
+            }
+        }
     }
 
     async onClose() {

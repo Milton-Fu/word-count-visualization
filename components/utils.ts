@@ -27,7 +27,6 @@ export async function calcOverviewMode(startDate: Date, endDate: Date, history: 
 
     const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     const segmentLength = Math.ceil(totalDays / segmentCount);
-    console.log(`Total days: ${totalDays}, Segment length: ${segmentLength}`);
 
     const currentDate = new Date(startDate);
     labels.push(currentDate.toISOString().split('T')[0]);
@@ -35,7 +34,6 @@ export async function calcOverviewMode(startDate: Date, endDate: Date, history: 
     for (let i = 1; i < segmentCount; i++) {
         const segmentEndDate = new Date(currentDate);
         segmentEndDate.setDate(currentDate.getDate() + segmentLength);
-        console.log(`Segment ${i}: ${currentDate.toISOString().split('T')[0]} to ${segmentEndDate.toISOString().split('T')[0]}`);
         // 计算当前分段的字数
         const segmentDays = Object.keys(history).filter(day => {
             const dayDate = new Date(day);
@@ -68,7 +66,7 @@ export async function calcMonthlyMode(selectedYear: number, history: Record<stri
         const monthStart = new Date(selectedYear, month, 1);
         const monthEnd = new Date(selectedYear, month + 1, 0); // 当前月的最后一天
 
-        labels.push(`${selectedYear}-${(month + 1).toString().padStart(2, '0')}01`);
+        labels.push(`${selectedYear}-${(month + 1).toString().padStart(2, '0')}`);
 
         // 计算当前月份的字数
         const monthDays = Object.keys(history).filter(day => {
