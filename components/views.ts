@@ -58,15 +58,27 @@ export class WordCountView extends ItemView {
         buttonContainer.style.alignItems = 'center';
         buttonContainer.style.gap = '10px';
 
-        // 区间选择器
-        const select = buttonContainer.createEl('select', { cls: 'chart-mode-select' });
-        select.innerHTML = `
-            <option value="default">${t('defaultSegment', language)}</option>
-            <option value="month">${t('byMonth', language)}</option>
-            <option value="year">${t('byYear', language)}</option>
-        `;
-        select.value = this.plugin.settings.chartMode || 'default';
-        setIcon(select.createEl('span', { cls: 'select-icon' }), 'calendar');
+        // 动态生成年份选择器
+        const yearSelect = buttonContainer.createEl('select', { cls: 'year-select' });
+        yearSelect.style.display = 'none'; // 默认隐藏
+        const history = this.plugin.dailyWordHistory;
+        const allDays = Object.keys(history).sort();
+        const startYear = new Date(allDays[0]).getFullYear();
+        const endYear = new Date(allDays[allDays.length - 1]).getFullYear();
+        for (let year = startYear; year <= endYear; year++) {
+            const option = yearSelect.createEl('option', { text: year.toString(), value: year.toString() });
+            if (year === (this.plugin.settings.selectedYear || startYear)) {
+                option.selected = true;
+            }
+        }
+        if (this.plugin.settings.chartMode === 'month') {
+            yearSelect.style.display = 'block';
+        }
+        yearSelect.onchange = async () => {
+            this.plugin.settings.selectedYear = parseInt(yearSelect.value, 10);
+            await this.plugin.saveSettings();
+            await renderChart();
+        };
 
         // 累加模式选择器
         const cumulativeSelect = buttonContainer.createEl('select', { cls: 'cumulative-mode-select' });
@@ -76,6 +88,16 @@ export class WordCountView extends ItemView {
         `;
         cumulativeSelect.value = this.plugin.settings.isCumulative ? 'true' : 'false';
         setIcon(cumulativeSelect.createEl('span', { cls: 'select-icon' }), 'layers');
+
+        // 区间选择器
+        const select = buttonContainer.createEl('select', { cls: 'chart-mode-select' });
+        select.innerHTML = `
+            <option value="default">${t('defaultSegment', language)}</option>
+            <option value="month">${t('byMonth', language)}</option>
+            <option value="year">${t('byYear', language)}</option>
+        `;
+        select.value = this.plugin.settings.chartMode || 'default';
+        setIcon(select.createEl('span', { cls: 'select-icon' }), 'calendar');
 
         // 刷新按钮（图标）
         const refreshBtn = buttonContainer.createEl('button', { cls: 'refresh-button' });
@@ -104,6 +126,7 @@ export class WordCountView extends ItemView {
             } else {
                 // 默认模式强制使用累加模式
                 this.plugin.settings.isCumulative = true;
+                cumulativeSelect.style.display = 'none'; // 隐藏累加模式选择器
                 cumulativeSelect.disabled = true; // 禁用累加模式选择器
                 result = await calcOverviewMode(startDate, endDate, history);
             }
@@ -194,7 +217,9 @@ export class WordCountView extends ItemView {
                 this.plugin.settings.isCumulative = true;
                 cumulativeSelect.disabled = true;
             } else {
+                this.plugin.settings.isCumulative = cumulativeSelect.value === 'true';
                 cumulativeSelect.disabled = false;
+                cumulativeSelect.style.display = 'block'; // 显示累加模式选择器
             }
 
             // 动态控制年份选择器的显示和隐藏
@@ -224,38 +249,6 @@ export class WordCountView extends ItemView {
             await renderChart();
         };
 
-        if (this.plugin.settings.chartMode === 'month') {
-            // 动态生成年份选择器
-            const history = this.plugin.dailyWordHistory;
-            const allDays = Object.keys(history).sort();
-            const startYear = new Date(allDays[0]).getFullYear();
-            const endYear = new Date(allDays[allDays.length - 1]).getFullYear();
-
-            let yearSelect = buttonContainer.querySelector('.year-select') as HTMLSelectElement;
-            if (!yearSelect) {
-                yearSelect = buttonContainer.createEl('select', { cls: 'year-select' });
-                for (let year = startYear; year <= endYear; year++) {
-                    const option = yearSelect.createEl('option', { text: year.toString(), value: year.toString() });
-                    if (year === (this.plugin.settings.selectedYear || startYear)) {
-                        option.selected = true;
-                    }
-                }
-
-                yearSelect.onchange = async () => {
-                    this.plugin.settings.selectedYear = parseInt(yearSelect.value, 10);
-                    await this.plugin.saveSettings();
-                    await renderChart();
-                };
-            }
-
-            yearSelect.style.display = 'block'; // 显示年份选择器
-        } else {
-            // 隐藏年份选择器
-            const yearSelect = buttonContainer.querySelector('.year-select') as HTMLSelectElement;
-            if (yearSelect) {
-                yearSelect.style.display = 'none';
-            }
-        }
     }
 
     async onClose() {
