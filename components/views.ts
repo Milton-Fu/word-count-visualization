@@ -4,6 +4,7 @@ import type MyPlugin from '../main';
 import { t } from './i18n';
 // Import Language type if it's exported from i18n or define it here
 import type { Language } from './i18n';
+import { calcMonthlyMode, calcOverviewMode, calcYearlyMode } from './utils';
 
 export const VIEW_TYPE_WORD_COUNT = 'word-count-view';
 
@@ -87,72 +88,26 @@ export class WordCountView extends ItemView {
         // 图表画布
         const canvas = container.createEl('canvas');
 
-        const renderChart = () => {
-            let labels: string[] = [];
-            let data: number[] = [];
+        const renderChart = async () => {
             const history = this.plugin.dailyWordHistory;
             const allDays = Object.keys(history).sort();
-
-            // 定义切分段数和 x 轴刻度限制
-            const segmentCount = 7; // 切分段数
-            const maxXTicks = 8; // x 轴刻度限制
 
             const startDate = new Date(allDays[0]);
             const endDate = new Date(allDays[allDays.length - 1]);
 
+            let result;
             if (this.plugin.settings.chartMode === 'month') {
-                // 按自然月切分为七段
-                const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth() + 1);
-                const monthsPerSegment = Math.ceil(totalMonths / segmentCount);
-
-                const currentDate = new Date(startDate);
-                currentDate.setDate(1); // 从每月1号开始
-                for (let i = 0; i < segmentCount - 1; i++) {
-                    labels.push(`${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`);
-                    currentDate.setMonth(currentDate.getMonth() + monthsPerSegment); // 跳到下一个分段的起始月份
-                }
-
-                // 确保最后一个段覆盖到 endDate
-                const lastMonth = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}`;
-                if (!labels.includes(lastMonth)) {
-                    labels.push(lastMonth);
-                }
+                result = await calcMonthlyMode(2025, history);
             } else if (this.plugin.settings.chartMode === 'year') {
-                // 按自然年切分
-                const currentDate = new Date(startDate);
-                currentDate.setMonth(0, 1); // 从每年1月1日开始
-                while (currentDate <= endDate) {
-                    labels.push(`${currentDate.getFullYear()}`);
-                    currentDate.setFullYear(currentDate.getFullYear() + 1); // 跳到下一年
-                }
+                result = await calcYearlyMode(startDate, endDate, history);
             } else {
-                // 默认分段（基于自然时间）
-                const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-                const segmentLength = Math.ceil(totalDays / segmentCount);
-
-                const currentDate = new Date(startDate);
-                for (let i = 0; i < segmentCount; i++) {
-                    labels.push(currentDate.toISOString().split('T')[0]);
-                    currentDate.setDate(currentDate.getDate() + segmentLength);
-                }
-
-                labels.push(endDate.toISOString().split('T')[0]);
+                // 默认模式强制使用累加模式
+                this.plugin.settings.isCumulative = true;
+                cumulativeSelect.disabled = true; // 禁用累加模式选择器
+                result = await calcOverviewMode(startDate, endDate, history);
             }
 
-            // 计算每个区间的字数
-            let previousDate = new Date(labels[0]);
-            data.push(0); // 第一个刻度字数为零
-            for (let i = 1; i < labels.length; i++) {
-                const currentDate = new Date(labels[i]);
-                const segmentDays = allDays.filter(day => {
-                    const dayDate = new Date(day);
-                    return dayDate > previousDate && dayDate <= currentDate;
-                });
-
-                const segmentTotal = segmentDays.reduce((sum, day) => sum + (history[day] || 0), 0);
-                data.push(segmentTotal);
-                previousDate = currentDate;
-            }
+            const { labels, data } = result;
 
             // 如果是累加模式，转换数据为累加形式
             if (this.plugin.settings.isCumulative) {
@@ -166,9 +121,15 @@ export class WordCountView extends ItemView {
                 (window as any).wordChart.destroy();
             }
 
+            // 动态设置图表类型
+            const chartType = this.plugin.settings.isCumulative ? 'line' : 'bar';
+
+            // 动态设置 x 轴最大刻度数
+            const maxTicksLimit = labels.length;
+
             // 渲染图表
             (window as any).wordChart = new Chart(canvas, {
-                type: 'line',
+                type: chartType,
                 data: {
                     labels,
                     datasets: [{
@@ -176,9 +137,9 @@ export class WordCountView extends ItemView {
                         data,
                         borderColor: this.plugin.settings.lineColor,
                         backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.2)'),
-                        fill: true,
-                        tension: 0.2, // 贝塞尔曲线
-                        pointRadius: 0 // 不显示点
+                        fill: !this.plugin.settings.isCumulative, // 仅柱状图填充
+                        tension: 0.2, // 贝塞尔曲线，仅折线图生效
+                        pointRadius: this.plugin.settings.isCumulative ? 1 : 0 // 折线图显示点，柱状图不显示
                     }]
                 },
                 options: {
@@ -207,7 +168,7 @@ export class WordCountView extends ItemView {
                                 display: true, 
                                 text: t('chartMode', language) // x 轴标题
                             },
-                            ticks: { maxTicksLimit: maxXTicks }
+                            ticks: { maxTicksLimit } // 动态设置最大刻度数
                         },
                         y: { 
                             title: { 
@@ -226,19 +187,28 @@ export class WordCountView extends ItemView {
 
         select.onchange = async () => {
             this.plugin.settings.chartMode = select.value;
+
+            // 如果是默认模式，强制启用累加模式并禁用选择器
+            if (select.value === 'default') {
+                this.plugin.settings.isCumulative = true;
+                cumulativeSelect.disabled = true;
+            } else {
+                cumulativeSelect.disabled = false;
+            }
+
             await this.plugin.saveSettings();
-            renderChart();
+            await renderChart();
         };
 
         cumulativeSelect.onchange = async () => {
             this.plugin.settings.isCumulative = cumulativeSelect.value === 'true';
             await this.plugin.saveSettings();
-            renderChart();
+            await renderChart();
         };
 
         refreshBtn.onclick = async () => {
             updateTotalWordCount();
-            renderChart();
+            await renderChart();
         };
     }
 
