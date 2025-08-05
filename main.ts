@@ -22,9 +22,9 @@ export default class MyPlugin extends Plugin {
         await this.loadSettings();
 
         // 创建左侧栏图标
-        // const ribbonIconEl = this.addRibbonIcon('chart-bar', '字数统计', () => {
-        //     this.activateView();
-        // });
+        const ribbonIconEl = this.addRibbonIcon('chart-bar', '字数统计', () => {
+            this.activateView();
+        });
 
         // 状态栏字数显示
         this.statusBarItemEl = this.addStatusBarItem();
@@ -95,7 +95,7 @@ class WordCountSettingTab extends PluginSettingTab {
         const { containerEl } = this;
 
         containerEl.empty();
-        containerEl.createEl('h2', { text: '字数统计设置 / Word Count Settings' });
+        // containerEl.createEl('h2', { text: '字数统计设置 / Word Count Settings' });
 
         // 语言设置
         new Setting(containerEl)
