@@ -162,8 +162,9 @@ export class WordCountView extends ItemView {
                         borderColor: this.plugin.settings.lineColor,
                         borderWidth: chartType === 'line' ? 4 : 3,
                         borderRadius: 5,
-                        backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.5)'),
-                        fill: !this.plugin.settings.isCumulative, // 仅柱状图填充
+                        backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.3)'),
+                        fill: true,
+                        // fill: !this.plugin.settings.isCumulative, // 仅柱状图填充
                         tension: 0.2, // 贝塞尔曲线，仅折线图生效
                         pointRadius: this.plugin.settings.isCumulative ? 1 : 0 // 折线图显示点，柱状图不显示
                     }]
