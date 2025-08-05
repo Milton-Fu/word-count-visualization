@@ -22,9 +22,9 @@ export default class MyPlugin extends Plugin {
         await this.loadSettings();
 
         // 创建左侧栏图标
-        const ribbonIconEl = this.addRibbonIcon('chart-bar', '字数统计', () => {
-            this.activateView();
-        });
+        // const ribbonIconEl = this.addRibbonIcon('chart-bar', '字数统计', () => {
+        //     this.activateView();
+        // });
 
         // 状态栏字数显示
         this.statusBarItemEl = this.addStatusBarItem();

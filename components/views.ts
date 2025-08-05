@@ -37,15 +37,9 @@ export class WordCountView extends ItemView {
 
         // 顶部容器，包含总字数和按钮
         const topContainer = container.createEl('div', { cls: 'top-container' });
-        topContainer.style.display = 'flex';
-        topContainer.style.alignItems = 'center';
-        topContainer.style.justifyContent = 'space-between';
-        topContainer.style.marginBottom = '10px';
 
         // 总字数显示
         const totalWordCountEl = topContainer.createEl('div', { cls: 'total-word-count' });
-        totalWordCountEl.style.fontSize = '14px';
-        totalWordCountEl.style.fontWeight = 'bold'; // 设置字体加粗
         const updateTotalWordCount = () => {
             const totalWords = Object.values(this.plugin.dailyWordHistory).reduce((sum, count) => sum + count, 0);
             totalWordCountEl.textContent = `${t('totalWordCount', language)}：${totalWords.toLocaleString()} ${language === 'zh-cn' ? '字' : 'words'}`;
@@ -54,9 +48,6 @@ export class WordCountView extends ItemView {
 
         // 按钮容器
         const buttonContainer = topContainer.createEl('div', { cls: 'button-container' });
-        buttonContainer.style.display = 'flex';
-        buttonContainer.style.alignItems = 'center';
-        buttonContainer.style.gap = '10px';
 
         // 动态生成年份选择器
         const yearSelect = buttonContainer.createEl('select', { cls: 'year-select' });
