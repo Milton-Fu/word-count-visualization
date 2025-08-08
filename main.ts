@@ -12,6 +12,9 @@ export default class MyPlugin extends Plugin {
 
     async loadSettings() {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        if (!this.settings.selectedYear) {
+            this.settings.selectedYear = new Date().getFullYear();
+        }
     }
 
     async saveSettings() {
@@ -26,16 +29,6 @@ export default class MyPlugin extends Plugin {
             this.activateView();
         });
 
-        // 状态栏字数显示
-        this.statusBarItemEl = this.addStatusBarItem();
-        this.statusBarItemEl.setText('字数：0');
-
-        // 监听文档切换和编辑
-        this.activeLeafChangeHandler = () => this.updateWordCount();
-        this.editorChangeHandler = () => this.updateWordCount();
-        this.registerEvent(this.app.workspace.on('active-leaf-change', this.activeLeafChangeHandler));
-        this.registerEvent(this.app.workspace.on('editor-change', this.editorChangeHandler));
-
         // 监听文件保存，记录每日字数
         this.registerEvent(this.app.vault.on('modify', async () => {
             this.dailyWordHistory = await getDailyWordHistory(this.app);
@@ -43,8 +36,10 @@ export default class MyPlugin extends Plugin {
         }));
 
         // 初始统计
-        this.updateWordCount();
-        this.dailyWordHistory = await getDailyWordHistory(this.app);
+        this.dailyWordHistory = {};
+        this.app.workspace.onLayoutReady(async () => {
+            this.dailyWordHistory = await getDailyWordHistory(this.app);
+        });
 
         this.registerView(
             VIEW_TYPE_WORD_COUNT,
@@ -59,15 +54,6 @@ export default class MyPlugin extends Plugin {
         this.app.workspace.detachLeavesOfType(VIEW_TYPE_WORD_COUNT);
     }
 
-    updateWordCount() {
-        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-        let currentCount = 0;
-        if (view && view.editor) {
-            const text = view.editor.getValue();
-            currentCount = countWords(text);
-        }
-        this.statusBarItemEl.setText(`字数：${currentCount}`);
-    }
 
     async activateView() {
         const leaf = this.app.workspace.getLeaf(true);

@@ -1,5 +1,6 @@
 export type Language = 'zh-cn' | 'en';
 type TranslationKey =
+    | 'wordCount'
     | 'totalWordCount'
     | 'chartMode'
     | 'defaultSegment'
@@ -18,6 +19,7 @@ type Translations = {
 
 export const translations: Translations = {
     'zh-cn': {
+        wordCount: '字数',
         totalWordCount: '字数',
         chartMode: '区间',
         defaultSegment: '默认分段',
@@ -31,6 +33,7 @@ export const translations: Translations = {
         wordCountVisualization: '笔记库字数统计' // 新增翻译
     },
     'en': {
+        wordCount: 'Word Count',
         totalWordCount: 'Word Count',
         chartMode: 'Interval',
         defaultSegment: 'Default Segmentation',

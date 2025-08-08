@@ -49,14 +49,6 @@ export class WordCountView extends ItemView {
         // 按钮容器
         const buttonContainer = topContainer.createEl('div', { cls: 'button-container' });
 
-        // 累加模式选择器
-        const cumulativeSelect = buttonContainer.createEl('select', { cls: 'cumulative-mode-select' });
-        const normalOption = cumulativeSelect.createEl('option', { value: 'false', text: t('normalMode', language) });
-        const cumulativeOption = cumulativeSelect.createEl('option', { value: 'true', text: t('cumulativeMode', language) });
-        cumulativeSelect.appendChild(normalOption);
-        cumulativeSelect.appendChild(cumulativeOption);
-        cumulativeSelect.value = this.plugin.settings.isCumulative ? 'true' : 'false';
-
         // 动态生成年份选择器
         const yearSelect = buttonContainer.createEl('select', { cls: 'year-select' });
         while (yearSelect.firstChild) {
@@ -82,6 +74,14 @@ export class WordCountView extends ItemView {
             await this.plugin.saveSettings();
             await renderChart();
         };
+
+        // 累加模式选择器
+        const cumulativeSelect = buttonContainer.createEl('select', { cls: 'cumulative-mode-select' });
+        const normalOption = cumulativeSelect.createEl('option', { value: 'false', text: t('normalMode', language) });
+        const cumulativeOption = cumulativeSelect.createEl('option', { value: 'true', text: t('cumulativeMode', language) });
+        cumulativeSelect.appendChild(normalOption);
+        cumulativeSelect.appendChild(cumulativeOption);
+        cumulativeSelect.value = this.plugin.settings.isCumulative ? 'true' : 'false';
 
         // 区间选择器
         const select = buttonContainer.createEl('select', { cls: 'chart-mode-select' });
