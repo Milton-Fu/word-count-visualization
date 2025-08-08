@@ -5,7 +5,7 @@
 	"minAppVersion": "0.15.0",
 	"description": "Count your words in Obsidian and visualize them with charts.",
 	"author": "Milton Hu",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"authorUrl": "",
+	"fundingUrl": "",
 	"isDesktopOnly": false
 }

@@ -11,7 +11,7 @@ type TranslationKey =
     | 'refresh'
     | 'cumulativeWordCount'
     | 'totalWordCountChart'
-    | 'wordCountVisualization'; // 新增翻译键
+    | 'tabName'; // 新增翻译键
 
 type Translations = {
     [lang in Language]: Record<TranslationKey, string>;
@@ -30,7 +30,7 @@ export const translations: Translations = {
         refresh: '刷新',
         cumulativeWordCount: '笔记库累加字数统计',
         totalWordCountChart: '笔记库字数统计',
-        wordCountVisualization: '笔记库字数统计' // 新增翻译
+        tabName: '笔记库字数统计' // 新增翻译
     },
     'en': {
         wordCount: 'Word Count',
@@ -44,7 +44,7 @@ export const translations: Translations = {
         refresh: 'Refresh',
         cumulativeWordCount: 'Cumulative Word Count',
         totalWordCountChart: 'Total Word Count Chart',
-        wordCountVisualization: 'Word Count Visualization' // 新增翻译
+        tabName: 'Word count view' // 新增翻译
     }
 };
 

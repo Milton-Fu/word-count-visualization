@@ -22,7 +22,7 @@ export class WordCountView extends ItemView {
 
     getDisplayText() {
         const language = this.plugin.settings.language as Language;
-        return t('wordCountVisualization', language); // 使用多语言支持的标题
+        return t('tabName', language); // 使用多语言支持的标题
     }
 
     getIcon() {
@@ -154,7 +154,7 @@ export class WordCountView extends ItemView {
                         label: this.plugin.settings.isCumulative ? t('cumulativeWordCount', language) : t('totalWordCountChart', language),
                         data,
                         borderColor: this.plugin.settings.lineColor,
-                        borderWidth: chartType === 'line' ? 4 : 3,
+                        borderWidth: chartType === 'line' ? 3 : 3,
                         borderRadius: 5,
                         backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.3)'),
                         fill: true,

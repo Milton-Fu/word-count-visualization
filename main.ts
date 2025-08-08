@@ -1,13 +1,10 @@
 import { Plugin, PluginSettingTab, MarkdownView, App, Setting } from 'obsidian';
 import { MyPluginSettings, DEFAULT_SETTINGS } from './components/settings';
-import { countWords, getDailyWordHistory } from './components/utils';
+import { getDailyWordHistory } from './components/utils';
 import { WordCountView, VIEW_TYPE_WORD_COUNT } from './components/views';
 
 export default class MyPlugin extends Plugin {
     settings: MyPluginSettings;
-    statusBarItemEl: HTMLElement;
-    activeLeafChangeHandler: () => void;
-    editorChangeHandler: () => void;
     dailyWordHistory: Record<string, number> = {};
 
     async loadSettings() {
