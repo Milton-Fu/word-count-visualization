@@ -50,3 +50,12 @@ If your plugin does not need CSS, delete this file.
     background: none;
     cursor: pointer;
 }
+
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* 可根据需要调整宽度 */
+    height: 100%; /* 可根据需要调整高度 */
+    margin: 0 auto; /* 水平居中 */
+}

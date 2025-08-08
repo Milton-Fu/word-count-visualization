@@ -101,9 +101,13 @@ export class WordCountView extends ItemView {
         refreshBtn.style.background = 'none';
         refreshBtn.style.cursor = 'pointer';
 
-        // 图表画布
-        const canvas = container.createEl('canvas');
+        // 图表容器
+        const chartContainer = container.createEl('div', { cls: 'chart-container' });
 
+        // 图表画布
+        const canvas = chartContainer.createEl('canvas');
+
+        // 渲染图表
         const renderChart = async () => {
             const history = this.plugin.dailyWordHistory;
             const allDays = Object.keys(history).sort();
@@ -118,34 +122,24 @@ export class WordCountView extends ItemView {
             } else if (this.plugin.settings.chartMode === 'year') {
                 result = await calcYearlyMode(startDate, endDate, history);
             } else {
-                // 默认模式强制使用累加模式
                 this.plugin.settings.isCumulative = true;
-                cumulativeSelect.style.display = 'none'; // 隐藏累加模式选择器
-                cumulativeSelect.disabled = true; // 禁用累加模式选择器
                 result = await calcOverviewMode(startDate, endDate, history);
             }
 
             const { labels, data } = result;
 
-            // 如果是累加模式，转换数据为累加形式
             if (this.plugin.settings.isCumulative) {
                 for (let i = 1; i < data.length; i++) {
                     data[i] += data[i - 1];
                 }
             }
 
-            // 清理旧图表
             if ((window as any).wordChart) {
                 (window as any).wordChart.destroy();
             }
 
-            // 动态设置图表类型
             const chartType = this.plugin.settings.isCumulative ? 'line' : 'bar';
 
-            // 动态设置 x 轴最大刻度数
-            const maxTicksLimit = labels.length;
-
-            // 渲染图表
             (window as any).wordChart = new Chart(canvas, {
                 type: chartType,
                 data: {
@@ -154,26 +148,19 @@ export class WordCountView extends ItemView {
                         label: this.plugin.settings.isCumulative ? t('cumulativeWordCount', language) : t('totalWordCountChart', language),
                         data,
                         borderColor: this.plugin.settings.lineColor,
-                        borderWidth: chartType === 'line' ? 3 : 3,
-                        borderRadius: 5,
                         backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.3)'),
                         fill: true,
-                        // fill: !this.plugin.settings.isCumulative, // 仅柱状图填充
-                        tension: 0.2, // 贝塞尔曲线，仅折线图生效
-                        pointRadius: this.plugin.settings.isCumulative ? 1 : 0 // 折线图显示点，柱状图不显示
+                        tension: 0.2,
+                        pointRadius: this.plugin.settings.isCumulative ? 1 : 0
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1.7,
                     plugins: {
                         legend: { display: false },
-                        title: { 
-                            display: false, 
-                            text: this.plugin.settings.isCumulative 
-                                ? t('cumulativeWordCount', language) 
-                                : t('totalWordCountChart', language) 
-                        }
+                        title: { display: false }
                     },
                     layout: {
                         padding: {
@@ -184,20 +171,8 @@ export class WordCountView extends ItemView {
                         }
                     },
                     scales: {
-                        x: { 
-                            title: { 
-                                display: true, 
-                                text: t('chartMode', language) // x 轴标题
-                            },
-                            ticks: { maxTicksLimit } // 动态设置最大刻度数
-                        },
-                        y: { 
-                            title: { 
-                                display: true, 
-                                text: t('totalWordCount', language) // y 轴标题
-                            }, 
-                            beginAtZero: true 
-                        }
+                        x: { ticks: { maxTicksLimit: labels.length } },
+                        y: { beginAtZero: true }
                     }
                 }
             });
