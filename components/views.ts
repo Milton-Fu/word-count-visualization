@@ -49,18 +49,30 @@ export class WordCountView extends ItemView {
         // 按钮容器
         const buttonContainer = topContainer.createEl('div', { cls: 'button-container' });
 
+        // 累加模式选择器
+        const cumulativeSelect = buttonContainer.createEl('select', { cls: 'cumulative-mode-select' });
+        const normalOption = cumulativeSelect.createEl('option', { value: 'false', text: t('normalMode', language) });
+        const cumulativeOption = cumulativeSelect.createEl('option', { value: 'true', text: t('cumulativeMode', language) });
+        cumulativeSelect.appendChild(normalOption);
+        cumulativeSelect.appendChild(cumulativeOption);
+        cumulativeSelect.value = this.plugin.settings.isCumulative ? 'true' : 'false';
+
         // 动态生成年份选择器
         const yearSelect = buttonContainer.createEl('select', { cls: 'year-select' });
-        yearSelect.style.display = 'none'; // 默认隐藏
+        while (yearSelect.firstChild) {
+            yearSelect.removeChild(yearSelect.firstChild); // 清空年份选择器
+        }
         const history = this.plugin.dailyWordHistory;
         const allDays = Object.keys(history).sort();
         const startYear = new Date(allDays[0]).getFullYear();
         const endYear = new Date(allDays[allDays.length - 1]).getFullYear();
+        const selectedYear = this.plugin.settings.selectedYear || endYear;
         for (let year = startYear; year <= endYear; year++) {
-            const option = yearSelect.createEl('option', { text: year.toString(), value: year.toString() });
-            if (year === (this.plugin.settings.selectedYear || startYear)) {
+            const option = yearSelect.createEl('option', { value: year.toString(), text: year.toString() });
+            if (year === selectedYear) {
                 option.selected = true;
             }
+            yearSelect.appendChild(option);
         }
         if (this.plugin.settings.chartMode === 'month') {
             yearSelect.style.display = 'block';
@@ -71,24 +83,15 @@ export class WordCountView extends ItemView {
             await renderChart();
         };
 
-        // 累加模式选择器
-        const cumulativeSelect = buttonContainer.createEl('select', { cls: 'cumulative-mode-select' });
-        cumulativeSelect.innerHTML = `
-            <option value="false">${t('normalMode', language)}</option>
-            <option value="true">${t('cumulativeMode', language)}</option>
-        `;
-        cumulativeSelect.value = this.plugin.settings.isCumulative ? 'true' : 'false';
-        setIcon(cumulativeSelect.createEl('span', { cls: 'select-icon' }), 'layers');
-
         // 区间选择器
         const select = buttonContainer.createEl('select', { cls: 'chart-mode-select' });
-        select.innerHTML = `
-            <option value="default">${t('defaultSegment', language)}</option>
-            <option value="month">${t('byMonth', language)}</option>
-            <option value="year">${t('byYear', language)}</option>
-        `;
+        const defaultOption = select.createEl('option', { value: 'default', text: t('defaultSegment', language) });
+        const monthOption = select.createEl('option', { value: 'month', text: t('byMonth', language) });
+        const yearOption = select.createEl('option', { value: 'year', text: t('byYear', language) });
+        select.appendChild(defaultOption);
+        select.appendChild(monthOption);
+        select.appendChild(yearOption);
         select.value = this.plugin.settings.chartMode || 'default';
-        setIcon(select.createEl('span', { cls: 'select-icon' }), 'calendar');
 
         // 刷新按钮（图标）
         const refreshBtn = buttonContainer.createEl('button', { cls: 'refresh-button' });
