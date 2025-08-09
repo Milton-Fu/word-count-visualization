@@ -93,6 +93,13 @@ export class WordCountView extends ItemView {
         select.appendChild(yearOption);
         select.value = this.plugin.settings.chartMode || 'default';
 
+        // 如果是默认模式，强制启用累加模式并禁用累加模式选择器
+        if (select.value === 'default') {
+            this.plugin.settings.isCumulative = true;
+            cumulativeSelect.disabled = true;
+            cumulativeSelect.value = 'true'; // 强制设置为累加模式
+        }
+
         // 刷新按钮（图标）
         const refreshBtn = buttonContainer.createEl('button', { cls: 'refresh-button' });
         setIcon(refreshBtn, 'refresh-cw'); // 使用 Obsidian 的图标
@@ -188,6 +195,7 @@ export class WordCountView extends ItemView {
             if (select.value === 'default') {
                 this.plugin.settings.isCumulative = true;
                 cumulativeSelect.disabled = true;
+                cumulativeSelect.value = 'true'; // 强制设置为累加模式
             } else {
                 this.plugin.settings.isCumulative = cumulativeSelect.value === 'true';
                 cumulativeSelect.disabled = false;
