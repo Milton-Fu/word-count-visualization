@@ -10,22 +10,24 @@ If your plugin does not need CSS, delete this file.
 /* 顶部容器样式 */
 .top-container {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    justify-content: space-between; /* 水平方向分布 */
+    align-items: center; /* 垂直方向居中对齐 */
+    padding: 10px 0; /* 添加上下内边距 */
+    width: 100%;
 }
 
 /* 总字数显示样式 */
 .total-word-count {
     font-size: 14px;
     font-weight: bold;
+    line-height: 1.5; /* 确保文字垂直居中 */
 }
 
 /* 按钮容器样式 */
 .button-container {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: center; /* 垂直方向居中对齐 */
+    gap: 10px; /* 按钮之间的间距 */
 }
 
 /* 年份选择器样式 */
@@ -49,6 +51,13 @@ If your plugin does not need CSS, delete this file.
     border: none;
     background: none;
     cursor: pointer;
+    display: flex;
+    align-items: center; /* 确保图标垂直居中 */
+}
+
+.button-container select {
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .chart-container {
