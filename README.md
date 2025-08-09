@@ -1,94 +1,69 @@
-# Obsidian Sample Plugin
+# Word Count Visualization
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+Word Count Visualization is an Obsidian plugin that counts the total words in your vault and visualizes your writing progress with interactive charts.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Features
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+- **Word Count Statistics:** Automatically counts the words in all your Markdown files.
+- **Visual Charts:** View your word count history as line or bar charts using [Chart.js](https://www.chartjs.org/).
+- **Flexible Intervals:** Visualize word counts by default segments, by month, or by year.
+- **Cumulative & Normal Modes:** Switch between cumulative and non-cumulative statistics.
+- **Year Selection:** Filter statistics by year.
+- **Customizable Appearance:** Change chart colors and plugin language (English/Chinese).
+- **Refresh Button:** Instantly update your statistics and charts.
 
-## First time developing plugins?
+## Installation
 
-Quick starting guide for new plugin devs:
+1. Download or build the plugin files: `main.js`, `manifest.json`, and `styles.css`.
+2. Copy these files to your vault's plugins folder:  
+   `YourVault/.obsidian/plugins/word-count-visualization/`
+3. Enable **Word Count Visualization** in Obsidian's Community Plugins settings.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+## Usage
 
-## Releasing new releases
+- Click the chart icon in the left ribbon to open the word count view.
+- Use the dropdown menus to select chart mode (default, by month, by year), cumulative mode, and year.
+- The chart and total word count will update automatically.
+- Access plugin settings from Obsidian's settings panel to change language or chart color.
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+## Development
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+### Build
 
-## Adding your plugin to the community plugin list
+Make sure you have [Node.js](https://nodejs.org/) v16 or above installed.
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+```sh
+npm install
+npm run dev
 ```
 
-If you have multiple URLs, you can also do:
+For production build:
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+```sh
+npm run build
 ```
 
-## API Documentation
+### Project Structure
 
-See https://github.com/obsidianmd/obsidian-api
+- [`main.ts`](main.ts): Main plugin entry.
+- [`components/`](components/): Contains settings, i18n, chart view, and utility functions.
+- [`styles.css`](styles.css): Plugin styles.
+- [`manifest.json`](manifest.json): Obsidian plugin manifest.
+- [`esbuild.config.mjs`](esbuild.config.mjs): Build configuration.
+
+### Versioning
+
+Version numbers are managed in [`manifest.json`](manifest.json) and [`versions.json`](versions.json).  
+Use `npm version patch|minor|major` to bump versions and update files automatically.
+
+## License
+
+[MIT](LICENSE)
+
+## Funding
+
+If you find this plugin helpful, you can support the developer by donating through the following platforms:
+
+- [Buy Me a Coffee](https://buymeacoffee.com/miltonfu)
+
+Your support is greatly appreciated and helps in the continued development and maintenance of the plugin.
