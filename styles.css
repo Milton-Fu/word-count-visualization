@@ -47,12 +47,12 @@ If your plugin does not need CSS, delete this file.
 
 /* 刷新按钮样式 */
 .refresh-button {
-    padding: 5px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center; /* 确保图标垂直居中 */
+  padding: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center; /* 确保图标垂直居中 */
 }
 
 .button-container select {
@@ -67,4 +67,12 @@ If your plugin does not need CSS, delete this file.
     width: 100%; /* 可根据需要调整宽度 */
     height: 100%; /* 可根据需要调整高度 */
     margin: 0 auto; /* 水平居中 */
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+.is-shown {
+  display: block !important;
 }

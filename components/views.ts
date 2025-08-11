@@ -67,7 +67,11 @@ export class WordCountView extends ItemView {
             yearSelect.appendChild(option);
         }
         if (this.plugin.settings.chartMode === 'month') {
-            yearSelect.style.display = 'block';
+            yearSelect.classList.remove('is-hidden');
+                yearSelect.classList.add('is-shown');
+        } else {
+            yearSelect.classList.add('is-hidden');
+            yearSelect.classList.remove('is-shown');
         }
         yearSelect.onchange = async () => {
             this.plugin.settings.selectedYear = parseInt(yearSelect.value, 10);
@@ -103,10 +107,6 @@ export class WordCountView extends ItemView {
         // 刷新按钮（图标）
         const refreshBtn = buttonContainer.createEl('button', { cls: 'refresh-button' });
         setIcon(refreshBtn, 'refresh-cw'); // 使用 Obsidian 的图标
-        refreshBtn.style.padding = '5px';
-        refreshBtn.style.border = 'none';
-        refreshBtn.style.background = 'none';
-        refreshBtn.style.cursor = 'pointer';
 
         // 图表容器
         const chartContainer = container.createEl('div', { cls: 'chart-container' });
@@ -199,19 +199,16 @@ export class WordCountView extends ItemView {
             } else {
                 this.plugin.settings.isCumulative = cumulativeSelect.value === 'true';
                 cumulativeSelect.disabled = false;
-                cumulativeSelect.style.display = 'block'; // 显示累加模式选择器
             }
 
             // 动态控制年份选择器的显示和隐藏
             const yearSelect = buttonContainer.querySelector('.year-select') as HTMLSelectElement;
             if (select.value === 'month') {
-                if (yearSelect) {
-                    yearSelect.style.display = 'block';
-                }
+                yearSelect.classList.remove('is-hidden');
+                yearSelect.classList.add('is-shown');
             } else {
-                if (yearSelect) {
-                    yearSelect.style.display = 'none';
-                }
+                yearSelect.classList.add('is-hidden');
+                yearSelect.classList.remove('is-shown');
             }
 
             await this.plugin.saveSettings();
