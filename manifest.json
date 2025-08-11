@@ -1,7 +1,7 @@
 {
 	"id": "word-count-visualization",
 	"name": "Word Count Visualization",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
 	"description": "Count your words in Obsidian and visualize them with charts.",
 	"author": "Milton Fu",
