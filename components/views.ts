@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, setIcon } from 'obsidian';
 import Chart from 'chart.js/auto';
-import type MyPlugin from '../main';
+import type VisualizationPlugin from '../main';
 import { t } from './i18n';
 // Import Language type if it's exported from i18n or define it here
 import type { Language } from './i18n';
@@ -8,10 +8,16 @@ import { calcMonthlyMode, calcOverviewMode, calcYearlyMode } from './utils';
 
 export const VIEW_TYPE_WORD_COUNT = 'word-count-view';
 
-export class WordCountView extends ItemView {
-    plugin: MyPlugin;
+declare global {
+    interface Window {
+        wordChart?: Chart;
+    }
+}
 
-    constructor(leaf: WorkspaceLeaf, plugin: MyPlugin) {
+export class WordCountView extends ItemView {
+    plugin: VisualizationPlugin;
+
+    constructor(leaf: WorkspaceLeaf, plugin: VisualizationPlugin) {
         super(leaf);
         this.plugin = plugin;
     }
@@ -141,19 +147,21 @@ export class WordCountView extends ItemView {
                 }
             }
 
-            if ((window as any).wordChart) {
-                (window as any).wordChart.destroy();
+            if (window.wordChart) {
+                window.wordChart.destroy();
             }
 
             const chartType = this.plugin.settings.isCumulative ? 'line' : 'bar';
 
-            (window as any).wordChart = new Chart(canvas, {
+            window.wordChart = new Chart(canvas, {
                 type: chartType,
                 data: {
                     labels,
                     datasets: [{
                         label: this.plugin.settings.isCumulative ? t('cumulativeWordCount', language) : t('totalWordCountChart', language),
                         data,
+                        borderWidth: 4,
+                        borderRadius: 10,
                         borderColor: this.plugin.settings.lineColor,
                         backgroundColor: this.plugin.settings.lineColor.replace('1)', '0.3)'),
                         fill: true,
