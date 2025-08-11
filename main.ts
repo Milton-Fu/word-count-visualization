@@ -1,10 +1,10 @@
-import { Plugin, PluginSettingTab, MarkdownView, App, Setting } from 'obsidian';
-import { MyPluginSettings, DEFAULT_SETTINGS } from './components/settings';
+import { Plugin, PluginSettingTab, App, Setting } from 'obsidian';
+import { VisualizationPluginSettings, DEFAULT_SETTINGS } from './components/settings';
 import { getDailyWordHistory } from './components/utils';
 import { WordCountView, VIEW_TYPE_WORD_COUNT } from './components/views';
 
-export default class MyPlugin extends Plugin {
-    settings: MyPluginSettings;
+export default class VisualizationPlugin extends Plugin {
+    settings: VisualizationPluginSettings;
     dailyWordHistory: Record<string, number> = {};
 
     async loadSettings() {
@@ -48,7 +48,7 @@ export default class MyPlugin extends Plugin {
     }
 
     onunload() {
-        this.app.workspace.detachLeavesOfType(VIEW_TYPE_WORD_COUNT);
+        // this.app.workspace.detachLeavesOfType(VIEW_TYPE_WORD_COUNT);
     }
 
 
@@ -67,9 +67,9 @@ export default class MyPlugin extends Plugin {
 }
 
 class WordCountSettingTab extends PluginSettingTab {
-    plugin: MyPlugin;
+    plugin: VisualizationPlugin;
 
-    constructor(app: App, plugin: MyPlugin) {
+    constructor(app: App, plugin: VisualizationPlugin) {
         super(app, plugin);
         this.plugin = plugin;
     }

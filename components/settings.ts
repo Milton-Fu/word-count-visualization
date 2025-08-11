@@ -1,4 +1,4 @@
-export interface MyPluginSettings {
+export interface VisualizationPluginSettings {
     chartMode: string; // 图表模式
     isCumulative: boolean; // 是否为累加模式
     lineColor: string; // 折线图颜色
@@ -6,7 +6,7 @@ export interface MyPluginSettings {
     selectedYear: number; // 选中的年份
 }
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
+export const DEFAULT_SETTINGS: VisualizationPluginSettings = {
     chartMode: 'default',
     isCumulative: false,
     lineColor: 'rgba(54, 162, 235, 1)', // 默认折线图颜色
